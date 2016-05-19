@@ -185,4 +185,6 @@ d3.json('../temp/global-temperature.json', (error, data) => {
   // console.log(data);
   buildChart(data.monthlyVariance, data.baseTemperature);
   buildKey(data.monthlyVariance, data.baseTemperature);
+  d3.selectAll('.spinner') // remove spinner when loaded
+    .classed('spinner', false);
 });
