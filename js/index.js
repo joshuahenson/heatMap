@@ -116,38 +116,44 @@ const buildChart = (data, baseTemp) => {
 };
 
 
-const buildlegend = (data, baseTemp) => {
-  const legendWidth = 400;
-  const legendHeight = 60;
-  const legendPadding = 40;
+const buildKey = (data, baseTemp) => {
+  const keyPadding = 40;
+  const keyWidth = ((width + margin.left + margin.right) / 2) - (keyPadding * 2);
+  const keyHeight = 60;
 
   const minTemp = d3.min(data, d => d.variance + baseTemp);
   const maxTemp = d3.max(data, d => d.variance + baseTemp);
-  const tempSpread = maxTemp - minTemp;
+  const tempSpread = (maxTemp - minTemp) / colors.length;
 
   const axisScale = d3.scale.linear()
     .domain([minTemp, maxTemp])
-    .range([0, legendWidth]);
+    .range([0, keyWidth]);
 
   const xScale = d3.scale.ordinal()
     .domain(d3.range(colors.length))
-    .rangeBands([0, legendWidth]);
+    .rangeBands([0, keyWidth]);
 
   const xAxis = d3.svg.axis()
     .scale(axisScale)
     .tickFormat(d3.format('.2f'))
-    .tickValues([minTemp, (tempSpread / 4) + minTemp, (tempSpread / 2) + minTemp,
-      (tempSpread * 0.75) + minTemp, maxTemp])
+    // .tickValues([minTemp, (tempSpread / 4) + minTemp, (tempSpread / 2) + minTemp,
+    //   (tempSpread * 0.75) + minTemp, maxTemp])
+    .tickValues([minTemp, minTemp + (tempSpread * 1), minTemp + (tempSpread * 2),
+      minTemp + (tempSpread * 3), minTemp + (tempSpread * 4), minTemp + (tempSpread * 5),
+      minTemp + (tempSpread * 6), minTemp + (tempSpread * 7), minTemp + (tempSpread * 8),
+      minTemp + (tempSpread * 9), minTemp + (tempSpread * 10), maxTemp])
     .orient('bottom');
 
   const svg = d3.select('#root')
+    .append('div')
+      .attr('class', 'key-container')
     .append('svg')
-      .attr('class', 'legend')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', legendHeight)
+      .attr('class', 'key')
+      .attr('width', keyWidth + (keyPadding * 2))
+      .attr('height', keyHeight + (keyPadding * 2))
     .append('g')
       .attr('transform',
-      `translate(${width + margin.left - legendWidth}, 0)`);
+      `translate(${keyPadding}, ${keyPadding})`);
 
   svg.selectAll('rect')
     .data(colors)
@@ -155,19 +161,19 @@ const buildlegend = (data, baseTemp) => {
     .attr('x', (d, i) => xScale(i))
     .attr('y', 0)
     .attr('width', xScale.rangeBand())
-    .attr('height', legendHeight - legendPadding)
+    .attr('height', keyHeight - keyPadding)
     .style('fill', (d, i) => colors[i]);
 
   // append x axis & label
   svg.append('g')
     .attr('class', 'x axis')
-    .attr('transform', `translate(0, ${legendHeight - legendPadding})`)
+    .attr('transform', `translate(0, ${keyHeight - keyPadding})`)
     .call(xAxis)
   .append('text')
     .attr('class', 'label')
-    .attr('x', legendWidth / 2)
-    .attr('y', legendPadding - 5)
-    .text('Temperature Range(\u00B0C)');
+    .attr('x', keyWidth / 2)
+    .attr('y', keyPadding - 5)
+    .text('Temperature Range (\u00B0C)');
 };
 
 // use remote file on codepen
@@ -178,5 +184,5 @@ d3.json('../temp/global-temperature.json', (error, data) => {
   // }
   // console.log(data);
   buildChart(data.monthlyVariance, data.baseTemperature);
-  buildlegend(data.monthlyVariance, data.baseTemperature);
+  buildKey(data.monthlyVariance, data.baseTemperature);
 });

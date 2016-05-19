@@ -1,8 +1,9 @@
 // compileExpanded: $1.css
 
 .container {
-  margin-top: 20px;
+  margin: 20px auto 0 auto;
   text-align: center;
+  width: 1200px;
 }
 
 h1 {
@@ -25,9 +26,13 @@ h1 {
   }
 }
 
+.key-container {
+  text-align: right;
+}
+
 // *************SVG Styles*****************
 .chart {
-  padding-bottom: 20px;
+  // padding-bottom: 20px;
   & rect {
     cursor: crosshair;
   }
@@ -49,4 +54,8 @@ text {
 
 .label {
   font-weight: bold;
+}
+
+.key text {
+  font-size: 12px;
 }
