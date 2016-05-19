@@ -1,6 +1,6 @@
 /* global d3 */
 
-const margin = { top: 10, right: 20, bottom: 40, left: 60 };
+const margin = { top: 10, right: 5, bottom: 40, left: 60 };
 
 const width = 1200 - margin.left - margin.right;
 const height = 600 - margin.top - margin.bottom;
