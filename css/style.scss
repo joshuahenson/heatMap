@@ -5,6 +5,22 @@
   text-align: center;
 }
 
+.tooltip {
+  position: absolute;
+  padding: 5px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  font-family: sans-serif;
+  font-size: 12px;
+  text-align: left;
+  & > h3 {
+    margin: 5px 0;
+  }
+}
+
 // *************SVG Styles*****************
 .chart text {
   font-family: sans-serif;
@@ -18,11 +34,6 @@
   fill: none;
   stroke: black;
   shape-rendering: crispEdges;
-}
-
-.y.axis line,
-.y.axis path {
-  stroke: none;
 }
 
 .label {
