@@ -1,13 +1,19 @@
 /* global d3 */
 
-const margin = { top: 30, right: 20, bottom: 40, left: 60 };
+const margin = { top: 10, right: 20, bottom: 40, left: 60 };
 
 const width = 1200 - margin.left - margin.right;
-const height = 800 - margin.top - margin.bottom;
+const height = 600 - margin.top - margin.bottom;
+
+const colors = ['#053061', '#2166ac', '#4393c3', '#92c5de', '#d1e5f0', '#f7f7f7',
+  '#fddbc7', '#f4a582', '#d6604d', '#b2182b', '#67001f'];
 
 const tooltip = d3.select('#root').append('div')
     .attr('class', 'tooltip')
     .style('opacity', 0);
+
+d3.select('#root').append('h1')
+  .html('Global Land Surface Temperature');
 
 // primary function to build chart
 const buildChart = (data, baseTemp) => {
@@ -16,15 +22,16 @@ const buildChart = (data, baseTemp) => {
 
   const colorScale = d3.scale.quantize()
     .domain(d3.extent(data, d => d.variance))
-    .range(['#053061', '#2166ac', '#4393c3', '#92c5de', '#d1e5f0', '#f7f7f7',
-      '#fddbc7', '#f4a582', '#d6604d', '#b2182b', '#67001f']);
+    .range(colors);
 
   const monthScale = d3.time.scale()
     .domain([new Date(2015, 0, 1), new Date(2015, 11, 31)])
     .range([0, height]);
 
-  const minDate = new Date(data[0].year, 0, 1);
-  const maxDate = new Date(data[data.length - 1].year, 11, 31);
+  const minYear = data[0].year;
+  const maxYear = data[data.length - 1].year;
+  const minDate = new Date(minYear, 0, 1);
+  const maxDate = new Date(maxYear, 11, 31);
   const yearScale = d3.time.scale()
     .domain([minDate, maxDate])
     .range([0, width]);
@@ -103,10 +110,66 @@ const buildChart = (data, baseTemp) => {
     .append('text')
       .attr('class', 'label')
       .attr('transform', 'rotate(-90)')
-      .attr('y', -margin.left + 10)
+      .attr('y', -margin.left + 11)
       .attr('x', -height / 2)
       .text('Month');
 };
+
+
+const buildlegend = (data, baseTemp) => {
+  const legendWidth = 400;
+  const legendHeight = 60;
+  const legendPadding = 40;
+
+  const minTemp = d3.min(data, d => d.variance + baseTemp);
+  const maxTemp = d3.max(data, d => d.variance + baseTemp);
+  const tempSpread = maxTemp - minTemp;
+
+  const axisScale = d3.scale.linear()
+    .domain([minTemp, maxTemp])
+    .range([0, legendWidth]);
+
+  const xScale = d3.scale.ordinal()
+    .domain(d3.range(colors.length))
+    .rangeBands([0, legendWidth]);
+
+  const xAxis = d3.svg.axis()
+    .scale(axisScale)
+    .tickFormat(d3.format('.2f'))
+    .tickValues([minTemp, (tempSpread / 4) + minTemp, (tempSpread / 2) + minTemp,
+      (tempSpread * 0.75) + minTemp, maxTemp])
+    .orient('bottom');
+
+  const svg = d3.select('#root')
+    .append('svg')
+      .attr('class', 'legend')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', legendHeight)
+    .append('g')
+      .attr('transform',
+      `translate(${width + margin.left - legendWidth}, 0)`);
+
+  svg.selectAll('rect')
+    .data(colors)
+    .enter().append('rect')
+    .attr('x', (d, i) => xScale(i))
+    .attr('y', 0)
+    .attr('width', xScale.rangeBand())
+    .attr('height', legendHeight - legendPadding)
+    .style('fill', (d, i) => colors[i]);
+
+  // append x axis & label
+  svg.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', `translate(0, ${legendHeight - legendPadding})`)
+    .call(xAxis)
+  .append('text')
+    .attr('class', 'label')
+    .attr('x', legendWidth / 2)
+    .attr('y', legendPadding - 5)
+    .text('Temperature Range(\u00B0C)');
+};
+
 // use remote file on codepen
 // d3.json('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json', (error, data) => {
 d3.json('../temp/global-temperature.json', (error, data) => {
@@ -115,4 +178,5 @@ d3.json('../temp/global-temperature.json', (error, data) => {
   // }
   // console.log(data);
   buildChart(data.monthlyVariance, data.baseTemperature);
+  buildlegend(data.monthlyVariance, data.baseTemperature);
 });
